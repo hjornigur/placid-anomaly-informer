@@ -30,22 +30,25 @@ client.on('ready', () => {
 const valuableAnomalies = {
     gas: {
         'Bright Nebula': 'Небагато Viridian Mykoserocin',
-        'Sparkling Nebula': 'Багато Viridian Mykoserocin',
-        'Glass Nebula': 'Багато Celadon Mykoserocin',
+        'Sparkling Nebula': ':sparkles: Багато Viridian Mykoserocin',
+        'Glass Nebula': ':sparkles: Багато Celadon Mykoserocin',
         'Calabash Nebula': 'Небагато Celadon Mykoserocin'
     },
     data: {
         'Core Runner Drop Distribution': '',
         'Serpentis Gas Processing Site': '',
         'Standard Sleeper Cache': '',
-        'Superior Sleeper Cache': ''
+        'Superior Sleeper Cache': ':sparkles:'
     },
     combat: {
         'Serpentis Drug Outlet': '1/10',
         'Serpentis Live Cargo Distribution Facilities': '2/10',
         'Serpentis Narcotic Warehouses': '3/10',
-        'Serpentis Phi-Outpost': '4/10',
+        'Serpentis Phi-Outpost': ':sparkles: 4/10',
         'Serpentis Corporation Hydroponics Site': '5/10'
+    },
+    scc: {
+        'SCC Secure Key Storage': '',  
     }
 }
 
@@ -53,9 +56,11 @@ client.on('messageCreate', async msg => {
     // console.log(msg)
     if (msg.channelId === '1010597177128652940') {
         // console.log(msg.content)
-        // console.log(msg.attachments)
-        if (msg.attachments) {
-            const fileUrl = Array.from(msg.attachments)[0][1].url;
+        console.log(msg.attachments)
+        const attachment = Array.from(msg.attachments)[0];
+        if (attachment) {
+            console.log('Attachments present');
+            const fileUrl = attachment[1].url;
             const rawBookmarksData = (await axios.get(fileUrl)).data;
             const anomalies = rawBookmarksData.split('\n')
                                   .map(row => row.split('\t'))
@@ -63,15 +68,21 @@ client.on('messageCreate', async msg => {
                                   .reverse();
             for (let [bookmarkName,,,system,region,,,date,creator] of anomalies) {
                 for (let anomalyCategory in valuableAnomalies) {
-                    for (let anomalyName in valuableAnomalies[anomalyCategory]) {
+                    const anomalyCategoryMapping = valuableAnomalies[anomalyCategory];
+                    for (let anomalyName in anomalyCategoryMapping) {
+                        
                         if (bookmarkName.includes(anomalyName)) {
                             const id = bookmarkName.split(' ')[0];
                             try {
                                 const saved = await db.getData(`/${id}`);
                             } catch(err) {
+                                
                                 console.log(`New ${anomalyName} has been found in ${system} by ${creator}`);
+                                const anomalyInfo = anomalyCategoryMapping[anomalyName];
                                 const channel = client.channels.cache.find(ch => ch.name === anomalyCategory);
-                                await channel.send({ content: `**${creator}** знайшов шось цікаве:\n**${anomalyName}**\nSystem: **${system}**\n-----` });
+                                await channel.send({
+                                    content: `**${creator}** знайшов шось цікаве:\n**${anomalyName}** ${anomalyInfo ? '(' + anomalyInfo + ')' : ''}\nSystem: **${system}** Sig: ${id}\n-----`
+                                });
                                 await db.push(`/${id}`, anomalyName);
                             };
                             
