@@ -33,7 +33,7 @@ client.on('ready', () => {
 const valuableAnomalies = {
     gas: {
         'Bright Nebula': 'Небагато Viridian Mykoserocin',
-        'Sparkling Nebula': ':sparkles: Багато Viridian Mykoserocin',
+        'Sparking Nebula': ':sparkles: Багато Viridian Mykoserocin',
         'Glass Nebula': ':sparkles: Багато Celadon Mykoserocin',
         'Calabash Nebula': 'Небагато Celadon Mykoserocin',
     },
